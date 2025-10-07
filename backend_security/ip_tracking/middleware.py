@@ -1,7 +1,9 @@
-from django.http import HttpResponseForbidden
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
-from .models import RequestLog, BlockedIP
+from django.http import HttpResponseForbidden
+from django.contrib.gis.geoip2 import GeoIP2
+from django.core.cache import cache
+from ip_tracking.models import RequestLog, BlockedIP
 
 class IPTrackingMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -11,11 +13,27 @@ class IPTrackingMiddleware(MiddlewareMixin):
         if BlockedIP.objects.filter(ip_address=ip).exists():
             return HttpResponseForbidden("Access denied: Your IP has been blocked.")
 
-        # Otherwise, log the request
+        # Get cached geolocation
+        geo_data = cache.get(ip)
+        if not geo_data:
+            try:
+                geo = GeoIP2()
+                location = geo.city(ip)
+                geo_data = {
+                    'country': location.get('country_name', 'Unknown'),
+                    'city': location.get('city', 'Unknown'),
+                }
+                cache.set(ip, geo_data, 60 * 60 * 24)  # cache for 24h
+            except Exception:
+                geo_data = {'country': 'Unknown', 'city': 'Unknown'}
+
+        # Log request
         RequestLog.objects.create(
             ip_address=ip,
             path=request.path,
-            timestamp=timezone.now()
+            timestamp=timezone.now(),
+            country=geo_data['country'],
+            city=geo_data['city']
         )
 
     def get_client_ip(self, request):
