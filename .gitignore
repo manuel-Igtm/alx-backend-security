@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.log
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static/
+local_settings.py
+
+# Migrations (optional if auto-generated)
+*/migrations/__pycache__/
+*/migrations/*.py
+
+# Environment and credentials
+.env
+*.env
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# GeoIP database
+GeoLite2-City.mmdb
+
+# Caches
+*.cache
+.cache/
+__pycache__/
+
+# Test and build artifacts
+*.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.pid
+*.sock
